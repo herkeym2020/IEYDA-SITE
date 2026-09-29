@@ -1,0 +1,11 @@
+/node_modules
+/vendor
+.env
+.env.backup
+dist(2).zip
+dist(3).zip
+dist.zip
+.env.production
+/.fleet
+/.idea
+/.vscode

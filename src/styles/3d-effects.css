@@ -1,0 +1,256 @@
+/* 3D Effects for Executive Images */
+
+.executive-card-3d {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.executive-image-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  transform-style: preserve-3d;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.executive-image-container:hover {
+  transform: perspective(1000px) rotateX(5deg) rotateY(5deg) scale(1.05);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.2),
+    0 10px 20px rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.executive-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 0.4s ease;
+  transform-style: preserve-3d;
+}
+
+.executive-image-container:hover .executive-image {
+  transform: scale(1.1);
+  filter: brightness(1.1) contrast(1.1);
+}
+
+/* Floating animation for cards */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotateX(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotateX(2deg);
+  }
+}
+
+.executive-card-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.executive-card-float:nth-child(2n) {
+  animation-delay: -2s;
+}
+
+.executive-card-float:nth-child(3n) {
+  animation-delay: -4s;
+}
+
+/* Gradient overlay with 3D effect */
+.executive-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.executive-image-container:hover .executive-overlay {
+  opacity: 1;
+}
+
+/* Shimmer effect */
+.executive-shimmer {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+}
+
+.executive-image-container:hover .executive-shimmer {
+  transform: translateX(100%) translateY(100%) rotate(45deg);
+}
+
+/* Depth shadow effect */
+.executive-depth-shadow {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  box-shadow: 
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 4px 16px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.executive-image-container:hover .executive-depth-shadow {
+  box-shadow: 
+    0 0 0 1px rgba(255, 255, 255, 0.2),
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Card tilt effect */
+.executive-card-tilt {
+  transition: transform 0.3s ease;
+  transform-style: preserve-3d;
+}
+
+.executive-card-tilt:hover {
+  transform: perspective(1000px) rotateX(2deg) rotateY(2deg);
+}
+
+/* Glowing border effect */
+.executive-glow-border {
+  position: relative;
+  overflow: hidden;
+}
+
+.executive-glow-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4, #10b981);
+  border-radius: 12px;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.executive-glow-border:hover::before {
+  opacity: 1;
+}
+
+/* President and VP special effects */
+.president-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
+}
+
+.president-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+  border-radius: 12px 12px 0 0;
+}
+
+.vp-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1));
+}
+
+.vp-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #8b5cf6, #06b6d4);
+  border-radius: 12px 12px 0 0;
+}
+
+/* Responsive 3D effects */
+@media (max-width: 768px) {
+  .executive-image-container:hover {
+    transform: perspective(800px) rotateX(3deg) rotateY(3deg) scale(1.03);
+  }
+  
+  .executive-card-tilt:hover {
+    transform: perspective(800px) rotateX(1deg) rotateY(1deg);
+  }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .executive-image-container,
+  .executive-image,
+  .executive-card-tilt,
+  .executive-card-float {
+    transition: none;
+    animation: none;
+    transform: none;
+  }
+  
+  .executive-image-container:hover {
+    transform: scale(1.02);
+  }
+}
+
+/* Loading skeleton with 3D effect */
+.executive-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.1) 25%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.1) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 2s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Interactive hover states */
+.executive-interactive {
+  cursor: pointer;
+  user-select: none;
+}
+
+.executive-interactive:active {
+  transform: perspective(1000px) rotateX(1deg) rotateY(1deg) scale(0.98);
+}
+
+/* Parallax effect for background elements */
+.executive-parallax-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 70%, rgba(59, 130, 246, 0.1), transparent),
+              radial-gradient(circle at 70% 30%, rgba(139, 92, 246, 0.1), transparent);
+  transform: translateZ(-10px) scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.executive-card:hover .executive-parallax-bg {
+  transform: translateZ(-5px) scale(1.05);
+}
+
