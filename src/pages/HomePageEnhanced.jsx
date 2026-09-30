@@ -33,7 +33,6 @@ const HomePage = () => {
   const [apiEvents, setApiEvents] = useState([])
   const [apiTeam, setApiTeam] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   // Icon mapping for programs (string to React component)
   const iconMap = {
@@ -68,9 +67,8 @@ const HomePage = () => {
     let cancelled = false;
     async function load() {
       setLoading(true);
-      setError(null);
       try {
-        const [heroSlidesRes, heroStatsRes, programs, news, testimonials, events, team] = await Promise.all([
+        const results = await Promise.allSettled([
           apiFetch('/hero-slides', { signal: controller.signal }),
           apiFetch('/hero-stats', { signal: controller.signal }),
           apiFetch('/programs', { signal: controller.signal }),
@@ -81,6 +79,17 @@ const HomePage = () => {
         ]);
 
         if (cancelled) return;
+
+        const valueOr = (index, fallback = []) => (
+          results[index]?.status === 'fulfilled' ? results[index].value : fallback
+        );
+        const heroSlidesRes = valueOr(0);
+        const heroStatsRes = valueOr(1);
+        const programs = valueOr(2);
+        const news = valueOr(3);
+        const testimonials = valueOr(4);
+        const events = valueOr(5);
+        const team = valueOr(6);
 
         setHeroSlides(heroSlidesRes?.data || heroSlidesRes || []);
         setHeroStats(heroStatsRes?.data || heroStatsRes || []);
@@ -124,7 +133,6 @@ const HomePage = () => {
         setApiTeam(teamArr);
       } catch (e) {
         if (cancelled) return;
-        setError('Failed to load homepage data.');
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -140,31 +148,14 @@ const HomePage = () => {
 
   if (loading) {
     return (
-      <div className="pt-20">
-        <div className="container-max py-16">
-          <div className="animate-pulse space-y-12">
-            <div className="h-96 bg-gray-200 rounded-2xl"></div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-32 bg-gray-200 rounded-xl"></div>
-              ))}
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-64 bg-gray-200 rounded-xl"></div>
-              ))}
-            </div>
+      <section className="pt-20 min-h-[70vh] flex items-center">
+        <div className="container-max w-full py-16 text-center">
+          <div className="inline-flex items-center gap-3 rounded-full border border-primary/15 bg-primary/5 px-5 py-3 text-sm text-primary" role="status" aria-live="polite">
+            <span className="h-2 w-2 rounded-full bg-primary animate-pulse" aria-hidden="true" />
+            Loading the latest IEYDA updates…
           </div>
         </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="pt-20">
-        <div className="container-max py-16 text-center text-red-600">{error}</div>
-      </div>
+      </section>
     );
   }
 
@@ -725,4 +716,3 @@ const HomePage = () => {
 }
 
 export default HomePage
-

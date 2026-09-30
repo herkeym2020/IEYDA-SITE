@@ -7,6 +7,19 @@ const CACHE_TTL = 30000; // ms
 
 const memoryCache = new Map(); // key -> { ts, data }
 const inflight = new Map();    // key -> promise
+const BOOTSTRAP_KEYS = new Set([
+  'hero-slides',
+  'hero-stats',
+  'news',
+  'events',
+  'past-events',
+  'programs',
+  'team',
+  'gallery',
+  'testimonials',
+  'communities',
+  'settings',
+]);
 
 // Access bootstrap data injected by Laravel or populated at runtime
 function getBootstrap() {
@@ -75,6 +88,24 @@ function readCache(key) {
   return cached.data;
 }
 
+async function waitForBootstrap(endpoint, method) {
+  if (method !== 'GET' || !BOOTSTRAP_KEYS.has(normalizeKey(endpoint))) return;
+  if (getBootstrap()) {
+    primeBootstrapCache();
+    return;
+  }
+
+  const bootstrapPromise = typeof window !== 'undefined' ? window.__BOOTSTRAP_PROMISE__ : null;
+  if (!bootstrapPromise) return;
+
+  try {
+    await bootstrapPromise;
+    primeBootstrapCache();
+  } catch (_) {
+    // Bootstrap failure is non-fatal; apiFetch will use the individual endpoint.
+  }
+}
+
 export async function apiFetch(endpoint, options = {}) {
   primeBootstrapCache();
 
@@ -85,6 +116,18 @@ export async function apiFetch(endpoint, options = {}) {
   const timeoutMs = options.timeout || DEFAULT_TIMEOUT;
 
   // Serve from cache if present
+  if (useCache) {
+    const cached = readCache(cacheKey);
+    if (cached !== null && cached !== undefined) {
+      const normalized = normalizeResponse(cached);
+      return attachMeta(normalized.data, normalized.meta);
+    }
+  }
+
+  // The bootstrap request already contains the initial public data set. Wait
+  // for it briefly before opening duplicate requests for the same resources.
+  await waitForBootstrap(endpoint, method);
+
   if (useCache) {
     const cached = readCache(cacheKey);
     if (cached !== null && cached !== undefined) {
