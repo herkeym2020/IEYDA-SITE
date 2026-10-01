@@ -87,14 +87,6 @@ const CommunityPage = () => {
     return matchesSearch && matchesLGA;
   });
 
-  if (loading) {
-    return (
-      <div className="pt-20">
-        <div className="container-max py-16 text-center text-muted-foreground">Loading communities...</div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="pt-20">
@@ -589,4 +581,3 @@ const CommunityPage = () => {
 }
 
 export default CommunityPage
-

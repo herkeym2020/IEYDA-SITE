@@ -169,14 +169,6 @@ const ProgramsPage = () => {
     }
   ];
 
-  if (loading) {
-    return (
-      <div className="pt-20">
-        <div className="container-max py-16 text-center text-muted-foreground">Loading Programs...</div>
-      </div>
-    )
-  }
-
   if (error) {
     return (
       <div className="pt-20">
@@ -625,4 +617,3 @@ const ProgramsPage = () => {
 }
 
 export default ProgramsPage
-

@@ -38,16 +38,6 @@ const pageTransition = {
   duration: 0.5,
 }
 
-// Keep code-split navigation calm: no full-screen overlay or fake page content.
-function RouteLoading() {
-  return (
-    <div className="route-loading" role="status" aria-live="polite">
-      <span className="route-loading__dot" aria-hidden="true" />
-      <span>Loading page…</span>
-    </div>
-  )
-}
-
 function Page({ children }) {
   return (
     <motion.div
@@ -69,7 +59,7 @@ function App() {
         <Header />
         <main className="main-content">
           <AnimatePresence mode="wait">
-            <Suspense fallback={<RouteLoading />}>
+            <Suspense fallback={null}>
               <Routes>
                 <Route path="/" element={<Page><HomePage /></Page>} />
                 <Route path="/about" element={<Page><AboutPage /></Page>} />

@@ -101,14 +101,6 @@ const NewsPage = () => {
 
   const categories = dynamicCategories;
 
-  if (loading) {
-    return (
-      <div className="pt-20">
-        <div className="container-max py-16 text-center text-muted-foreground">Loading news...</div>
-      </div>
-    )
-  }
-
   if (error) {
     return (
       <div className="pt-20">
@@ -704,4 +696,3 @@ const NewsPage = () => {
 }
 
 export default NewsPage
-

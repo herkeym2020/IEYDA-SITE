@@ -49,14 +49,6 @@ function TestimonialsPage() {
     }
   }, [])
 
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-20">
-        <div className="text-center text-muted-foreground">Loading testimonials…</div>
-      </div>
-    )
-  }
-
   if (error) {
     return (
       <div className="container mx-auto px-4 py-20">

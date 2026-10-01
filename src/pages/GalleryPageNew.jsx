@@ -100,14 +100,6 @@ const GalleryPage = () => {
   // ]
   const galleryItems = apiGallery && apiGallery.length ? apiGallery : []
 
-  if (loading) {
-    return (
-      <div className="pt-20">
-        <div className="container-max py-16 text-center text-muted-foreground">Loading gallery...</div>
-      </div>
-    )
-  }
-
   if (error) {
     return (
       <div className="pt-20">
@@ -578,4 +570,3 @@ const GalleryPage = () => {
 }
 
 export default GalleryPage
-

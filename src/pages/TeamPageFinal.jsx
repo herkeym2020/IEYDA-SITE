@@ -110,14 +110,6 @@ const TeamPage = () => {
   const visibleBoard = showAllBoard ? (boardOfTrustees || []) : ((boardOfTrustees || []).slice(0, 6))
 
 
-  if (loading) {
-    return (
-      <div className="pt-20">
-        <div className="container-max py-16 text-center text-muted-foreground">Loading Executive...</div>
-      </div>
-    )
-  }
-
   if (error) {
     return (
       <div className="pt-20">
@@ -1148,4 +1140,3 @@ const TeamPage = () => {
 }
 
 export default TeamPage
-
