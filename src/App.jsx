@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { lazy, Suspense } from 'react'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+import { lazy, Suspense, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import './App.css'
 
@@ -52,10 +52,15 @@ function Page({ children }) {
   )
 }
 
-function App() {
+function AppContent() {
+  const location = useLocation()
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }, [location.pathname, location.search])
+
   return (
-    <Router>
-      <div className="content-wrapper">
+    <div className="content-wrapper">
         <Header />
         <main className="main-content">
           <AnimatePresence mode="wait">
@@ -84,7 +89,14 @@ function App() {
           </AnimatePresence>
         </main>
         <Footer />
-      </div>
+    </div>
+  )
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   )
 }
