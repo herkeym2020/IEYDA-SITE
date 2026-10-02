@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { apiFetch } from '@/lib/api'
 import { getImageUrl } from '@/lib/utils'
+import MonthlyRealizationCard from '@/components/MonthlyRealizationCard'
 import { motion } from 'framer-motion'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -27,6 +28,10 @@ const CommunityPage = () => {
   const [communities, setCommunities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [monthlyRealization, setMonthlyRealization] = useState(() => {
+    const value = typeof window !== 'undefined' ? window.__BOOTSTRAP_DATA__?.['monthly-realizations'] : null
+    return (Array.isArray(value) ? value : value?.data || [])[0] || null
+  });
   // ...existing code...
   const [form, setForm] = useState({
     name: '',
@@ -70,6 +75,13 @@ const CommunityPage = () => {
       cancelled = true;
       controller.abort();
     };
+  }, []);
+
+  useEffect(() => {
+    apiFetch('/monthly-realizations').then((value) => {
+      const items = value?.data || value || [];
+      if (Array.isArray(items) && items[0]) setMonthlyRealization(items[0]);
+    }).catch(() => {});
   }, []);
 
 
@@ -141,6 +153,12 @@ const CommunityPage = () => {
           </motion.div>
         </div>
       </section>
+
+      {monthlyRealization && (
+        <section className="section-padding bg-[#fffaf0]">
+          <div className="container-max"><MonthlyRealizationCard realization={monthlyRealization} compact /></div>
+        </section>
+      )}
 
       {/* Member Associations Section */}
       <section className="section-padding">

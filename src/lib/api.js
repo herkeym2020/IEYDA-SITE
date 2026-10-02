@@ -19,6 +19,9 @@ const BOOTSTRAP_KEYS = new Set([
   'testimonials',
   'communities',
   'settings',
+  'meeting-notices',
+  'monthly-realizations',
+  'history/ilorin',
 ]);
 
 // Access bootstrap data injected by Laravel or populated at runtime
@@ -51,6 +54,9 @@ function primeBootstrapCache() {
     'testimonials': boot['testimonials'],
     'communities': boot['communities'],
     'settings': boot['settings'],
+    'meeting-notices': boot['meeting-notices'],
+    'monthly-realizations': boot['monthly-realizations'],
+    'history/ilorin': boot.history,
   };
   const now = Date.now();
   Object.entries(entries).forEach(([k, v]) => {

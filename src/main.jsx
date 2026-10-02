@@ -43,6 +43,9 @@ function initBootstrap() {
         testimonials: data.testimonials,
         communities: data.communities,
         settings: data.settings,
+        'meeting-notices': data.meetingNotices,
+        'monthly-realizations': data.monthlyRealizations,
+        history: data.history,
       }
       return window.__BOOTSTRAP_DATA__
     })

@@ -60,6 +60,7 @@ const Header = () => {
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
+    { name: 'Ilorin History', href: '/history/ilorin' },
     { name: 'Executive', href: '/team' },
     { name: 'Membership', href: '/membership' },
     { name: 'Empowerment', href: '/empowerment' },
@@ -235,4 +236,3 @@ const Header = () => {
 }
 
 export default Header
-
