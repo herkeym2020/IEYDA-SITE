@@ -360,6 +360,19 @@ const HomePage = () => {
         </section>
       )}
 
+      <section className="section-padding bg-primary text-primary-foreground">
+        <div className="container-max flex flex-col items-center justify-between gap-6 text-center md:flex-row md:text-left">
+          <div>
+            <Badge className="mb-4 bg-secondary/20 text-secondary">Our shared heritage</Badge>
+            <h2 className="text-3xl font-bold md:text-4xl">Discover the story of Ilorin</h2>
+            <p className="mt-3 max-w-2xl text-primary-foreground/80">Walk through the milestones, people, and shared responsibility that continue to shape the Ilorin Emirate community.</p>
+          </div>
+          <Link to="/history/ilorin" className="shrink-0">
+            <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">See Ilorin history <ArrowRight className="ml-2 h-4 w-4" /></Button>
+          </Link>
+        </div>
+      </section>
+
       {/* News Section with See More/Less */}
       <section className="section-padding">
         <div className="container-max">
