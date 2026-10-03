@@ -26,6 +26,7 @@ const MembershipPage = () => {
   const [viewMode, setViewMode] = useState('cards') // 'cards', 'table', 'list'
   const [associations, setAssociations] = useState([])
   const [directoryError, setDirectoryError] = useState(null)
+  const [siteStats, setSiteStats] = useState(() => (typeof window !== 'undefined' ? window.__BOOTSTRAP_DATA__?.['site-stats'] : null))
 
   useEffect(() => {
     const controller = new AbortController()
@@ -35,6 +36,11 @@ const MembershipPage = () => {
         if (error?.name !== 'AbortError') setDirectoryError('Unable to load the approved association directory.')
       })
     return () => controller.abort()
+  }, [])
+
+  useEffect(() => {
+    const promise = typeof window !== 'undefined' ? window.__BOOTSTRAP_PROMISE__ : null
+    promise?.then(() => setSiteStats(window.__BOOTSTRAP_DATA__?.['site-stats'] || null))
   }, [])
   
   // Form state
@@ -118,10 +124,10 @@ const MembershipPage = () => {
   })
 
   const stats = [
-    { number: associations.length || "0", label: "Approved Associations", icon: Building },
-    { number: "2.3M+", label: "Youth Population Served", icon: Users },
-    { number: "5", label: "Local Government Areas", icon: MapPin },
-    { number: "11", label: "Years of Service", icon: Calendar }
+    { number: associations.length || siteStats?.youth_associations || "0", label: "Approved Associations", icon: Building },
+    { number: siteStats?.youth_population || "0", label: "Youth Population Served", icon: Users },
+    { number: siteStats?.lgas_covered || "0", label: "Local Government Areas", icon: MapPin },
+    { number: siteStats?.years_of_service || "0", label: "Years of Service", icon: Calendar }
   ]
 
   return (
@@ -578,4 +584,3 @@ const MembershipPage = () => {
 }
 
 export default MembershipPage
-

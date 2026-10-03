@@ -34,6 +34,7 @@ function initBootstrap() {
       window.__BOOTSTRAP_DATA__ = {
         'hero-slides': data.heroSlides,
         'hero-stats': data.heroStats,
+        'site-stats': data.siteStats,
         news: data.news,
         events: data.events,
         'past-events': data.pastEvents,

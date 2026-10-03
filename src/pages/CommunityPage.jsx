@@ -28,6 +28,8 @@ const CommunityPage = () => {
   const [communities, setCommunities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [siteStats, setSiteStats] = useState(() => (typeof window !== 'undefined' ? window.__BOOTSTRAP_DATA__?.['site-stats'] : null));
+  const [visibleCount, setVisibleCount] = useState(9);
   const [monthlyRealization, setMonthlyRealization] = useState(() => {
     const value = typeof window !== 'undefined' ? window.__BOOTSTRAP_DATA__?.['monthly-realizations'] : null
     return (Array.isArray(value) ? value : value?.data || [])[0] || null
@@ -46,8 +48,7 @@ const CommunityPage = () => {
   const [formStatus, setFormStatus] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // Define LGAs before any use
-  const lgas = ["all", "Asa", "Ilorin East", "Ilorin South", "Ilorin West", "Moro"];
+  const lgas = ['all', ...Array.from(new Set(communities.map((community) => community.lga).filter(Boolean))).sort()];
 
   useEffect(() => {
     const controller = new AbortController();
@@ -78,6 +79,11 @@ const CommunityPage = () => {
   }, []);
 
   useEffect(() => {
+    const promise = typeof window !== 'undefined' ? window.__BOOTSTRAP_PROMISE__ : null;
+    promise?.then(() => setSiteStats(window.__BOOTSTRAP_DATA__?.['site-stats'] || null));
+  }, []);
+
+  useEffect(() => {
     apiFetch('/monthly-realizations').then((value) => {
       const items = value?.data || value || [];
       if (Array.isArray(items) && items[0]) setMonthlyRealization(items[0]);
@@ -86,15 +92,15 @@ const CommunityPage = () => {
 
 
   const stats = [
-    { number: "200+", label: "Registered Associations", icon: Building },
-    { number: "2.3M+", label: "Youth Population Served", icon: Users },
-    { number: "5", label: "Local Government Areas", icon: MapPin },
-    { number: "11", label: "Years of Service", icon: Calendar }
+    { number: siteStats?.youth_associations || "0", label: "Approved Associations", icon: Building },
+    { number: siteStats?.youth_population || "0", label: "Youth Population Served", icon: Users },
+    { number: siteStats?.lgas_covered || "0", label: "Local Government Areas", icon: MapPin },
+    { number: siteStats?.years_of_service || "0", label: "Years of Service", icon: Calendar }
   ]
 
   // Filtered communities for search and LGA
   const filteredCommunities = communities.filter(community => {
-    const matchesSearch = community.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = String(community.name || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesLGA = selectedLGA === 'all' || community.lga === selectedLGA;
     return matchesSearch && matchesLGA;
   });
@@ -108,7 +114,6 @@ const CommunityPage = () => {
   }
 
   // See More functionality
-  const [visibleCount, setVisibleCount] = useState(9);
   const handleSeeMore = () => setVisibleCount(c => c + 9);
   const canSeeMore = visibleCount < filteredCommunities.length;
 

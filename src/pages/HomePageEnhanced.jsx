@@ -28,6 +28,7 @@ import { getImageUrl } from '@/lib/utils'
 const HomePage = () => {
   const [heroSlides, setHeroSlides] = useState([]);
   const [heroStats, setHeroStats] = useState([]);
+  const [siteStats, setSiteStats] = useState(() => (typeof window !== 'undefined' ? window.__BOOTSTRAP_DATA__?.['site-stats'] : null));
   const [apiPrograms, setApiPrograms] = useState([])
   const [apiNews, setApiNews] = useState([])
   const [apiTestimonials, setApiTestimonials] = useState([])
@@ -96,6 +97,8 @@ const HomePage = () => {
 
         setHeroSlides(heroSlidesRes?.data || heroSlidesRes || []);
         setHeroStats(heroStatsRes?.data || heroStatsRes || []);
+        const managedStats = typeof window !== 'undefined' ? window.__BOOTSTRAP_DATA__?.['site-stats'] : null;
+        if (managedStats) setSiteStats(managedStats);
 
         const prog = (programs?.data || programs || []).map((p) => ({
           ...p,
@@ -177,25 +180,25 @@ const HomePage = () => {
 
   const stats = [
     {
-      number: totalBeneficiaries ? totalBeneficiaries + '+' : '0',
+      number: siteStats?.youth_empowered || (totalBeneficiaries ? totalBeneficiaries + '+' : '0'),
       label: 'Youth Empowered',
       icon: Users,
       description: 'Young people trained and empowered',
     },
     {
-      number: totalPrograms,
+      number: siteStats?.active_programs || totalPrograms,
       label: 'Programs Delivered',
       icon: Target,
       description: 'Successful programs implemented',
     },
     {
-      number: uniqueLocations.length,
+      number: siteStats?.communities_reached || uniqueLocations.length,
       label: 'Communities Reached',
       icon: MapPin,
       description: 'Communities across the Emirate',
     },
     {
-      number: yearsOfImpact,
+      number: siteStats?.years_of_service || yearsOfImpact,
       label: 'Years of Impact',
       icon: Award,
       description: 'Decade of community service',

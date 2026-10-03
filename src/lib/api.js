@@ -10,6 +10,7 @@ const inflight = new Map();    // key -> promise
 const BOOTSTRAP_KEYS = new Set([
   'hero-slides',
   'hero-stats',
+  'site-stats',
   'news',
   'events',
   'past-events',
@@ -45,6 +46,7 @@ function primeBootstrapCache() {
   const entries = {
     'hero-slides': boot['hero-slides'],
     'hero-stats': boot['hero-stats'],
+    'site-stats': boot['site-stats'],
     'news': boot['news'],
     'events': boot['events'],
     'past-events': boot['past-events'],
