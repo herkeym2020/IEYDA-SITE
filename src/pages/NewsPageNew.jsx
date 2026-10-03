@@ -67,7 +67,8 @@ const NewsPage = () => {
       const d = await apiFetch('/news', { signal: controller.signal })
       const newsData = (d?.data || d || []).map(article => ({
         ...article,
-        image: getImageUrl(article.image)
+        image: getImageUrl(article.image),
+        tags: Array.isArray(article.tags) ? article.tags : []
       }))
       setApiNews(newsData)
     } catch (err) {

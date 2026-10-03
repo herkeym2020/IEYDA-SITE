@@ -78,10 +78,15 @@ const TeamPage = () => {
     }
   }, [])
 
-  // Dynamic data filtering
+  // Dynamic data filtering. Prefer executive_type so one person can have
+  // separate present and pioneering records with different historical posts.
+  const executiveTypeFor = (member) => member?.executive_type || (
+    member?.type === 'executive_present' ? 'present' :
+    member?.type === 'executive_pioneering' ? 'pioneering' : null
+  )
   const grandPatron = apiTeam?.find(member => member.type === 'grand_patron');
-  const presentExecutives = apiTeam?.filter(member => member.type === 'executive_present');
-  const pioneeringExecutives = apiTeam?.filter(member => member.type === 'executive_pioneering');
+  const presentExecutives = apiTeam?.filter(member => executiveTypeFor(member) === 'present');
+  const pioneeringExecutives = apiTeam?.filter(member => executiveTypeFor(member) === 'pioneering');
   const boardOfTrustees = apiTeam?.filter(member => member.type === 'board_of_trustees');
   const departments = apiTeam?.filter(member => member.type === 'department') || [];
 
@@ -96,7 +101,8 @@ const TeamPage = () => {
   const presentPresident = presentExecutives?.find(isPresident) || null
   const pioneeringPresident = pioneeringExecutives?.find(isPresident) || null
 
-  const currentExecutives = activeExecutiveType === 'present' ? (presentExecutives || []) : (pioneeringExecutives || [])
+  const currentExecutives = [...(activeExecutiveType === 'present' ? (presentExecutives || []) : (pioneeringExecutives || []))]
+    .sort((a, b) => (Number(a.priority ?? 99) - Number(b.priority ?? 99)) || (Number(a.order ?? 99) - Number(b.order ?? 99)) || String(a.name || '').localeCompare(String(b.name || '')))
   const executiveLevelMembers = (currentExecutives || [])
     .filter(member => member && member.id !== presentPresident?.id && member.id !== pioneeringPresident?.id)
     .filter(member => !isPresident(member) && Number(member.priority) > 1)

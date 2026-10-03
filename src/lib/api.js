@@ -164,6 +164,13 @@ export async function apiFetch(endpoint, options = {}) {
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(new Error('Request timeout')), timeoutMs);
+  if (options.signal) {
+    if (options.signal.aborted) {
+      controller.abort(options.signal.reason);
+    } else {
+      options.signal.addEventListener('abort', () => controller.abort(options.signal.reason), { once: true });
+    }
+  }
 
   const url = `${API_BASE}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
   const headers = {
@@ -175,10 +182,10 @@ export async function apiFetch(endpoint, options = {}) {
   const fetchPromise = (async () => {
     try {
       // Strip custom options that are not valid fetch() properties
-      const { cache: _cache, timeout: _timeout, ...fetchOptions } = options;
+      const { cache: _cache, timeout: _timeout, signal: _signal, ...fetchOptions } = options;
       const response = await fetch(url, {
         credentials: fetchOptions.credentials || 'include',
-        signal: fetchOptions.signal || controller.signal,
+        signal: controller.signal,
         headers,
         ...fetchOptions,
       });
