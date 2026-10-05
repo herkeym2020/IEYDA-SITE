@@ -7,6 +7,7 @@ import './App.css'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
 import MeetingNoticePopup from './components/MeetingNoticePopup'
+import AppPreloader from './components/AppPreloader'
 
 // Page Components (code-split with React.lazy)
 const HomePage = lazy(() => import('./pages/HomePageEnhanced'))
@@ -67,7 +68,7 @@ function AppContent() {
         <MeetingNoticePopup />
         <main className="main-content">
           <AnimatePresence mode="wait">
-            <Suspense fallback={null}>
+            <Suspense fallback={<AppPreloader />}>
               <Routes>
                 <Route path="/" element={<Page><HomePage /></Page>} />
                 <Route path="/about" element={<Page><AboutPage /></Page>} />

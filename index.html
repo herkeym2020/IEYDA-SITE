@@ -11,6 +11,7 @@
     <meta property="og:title" content="IEYDA - Ilorin Emirate Youth Development Association">
     <meta property="og:description" content="Empowering Youth, Building Communities through collaborative initiatives and development programs.">
     <meta property="og:type" content="website">
+    <link rel="preconnect" href="https://control.ilorinemirateyouths.com" crossorigin>
     <script>
       if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
       window.scrollTo(0, 0);
@@ -18,9 +19,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      .app-preloader{min-height:100vh;display:grid;place-items:center;align-content:center;gap:.8rem;padding:2rem;box-sizing:border-box;background:radial-gradient(circle at 50% 35%,rgba(212,175,55,.13),transparent 34%),#071b17;color:#fff;text-align:center;font:14px Inter,system-ui,sans-serif}.app-preloader__mark{width:9rem;height:9rem;position:relative;display:grid;place-items:center}.app-preloader__ring{position:absolute;inset:0;border-radius:999px;border:1px solid rgba(226,189,83,.55);border-left-color:transparent;animation:ieyda-spin 5s linear infinite}.app-preloader__ring--inner{inset:.8rem;border-color:rgba(255,255,255,.18);animation-direction:reverse;animation-duration:4s}.app-preloader__initials{font-weight:900;letter-spacing:.16em;color:#e2bd53}.app-preloader__title{max-width:28rem;margin:0;font-weight:700}.app-preloader__message{margin:0;color:rgba(255,255,255,.62)}.app-preloader__track{width:min(17rem,75vw);height:3px;overflow:hidden;border-radius:99px;background:rgba(255,255,255,.12)}.app-preloader__track span{display:block;width:42%;height:100%;border-radius:inherit;background:#e2bd53;animation:ieyda-progress 1.6s ease-in-out infinite}@keyframes ieyda-spin{to{transform:rotate(360deg)}}@keyframes ieyda-progress{0%{transform:translateX(-120%)}55%,100%{transform:translateX(290%)}}
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="app-preloader" role="status" aria-live="polite" aria-label="Loading IEYDA">
+        <div class="app-preloader__glow"></div>
+        <div class="app-preloader__mark" aria-hidden="true"><span class="app-preloader__ring app-preloader__ring--outer"></span><span class="app-preloader__ring app-preloader__ring--inner"></span><span class="app-preloader__initials">IEYDA</span></div>
+        <p class="app-preloader__title">Ilorin Emirate Youth Development Association</p>
+        <p class="app-preloader__message">Preparing the latest community update…</p>
+        <div class="app-preloader__track" aria-hidden="true"><span></span></div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
