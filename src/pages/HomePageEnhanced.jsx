@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import HeroSlider from '@/components/HeroSlider'
 import LeadershipSectionDynamic from '@/components/LeadershipSectionDynamic'
+import MonthlyRealizationCard from '@/components/MonthlyRealizationCard'
 import { 
   Users, 
   Target, 
@@ -27,12 +28,16 @@ import { getImageUrl } from '@/lib/utils'
 const HomePage = () => {
   const [heroSlides, setHeroSlides] = useState([]);
   const [heroStats, setHeroStats] = useState([]);
+  const [siteStats, setSiteStats] = useState(() => (typeof window !== 'undefined' ? window.__BOOTSTRAP_DATA__?.['site-stats'] : null));
   const [apiPrograms, setApiPrograms] = useState([])
   const [apiNews, setApiNews] = useState([])
   const [apiTestimonials, setApiTestimonials] = useState([])
   const [apiEvents, setApiEvents] = useState([])
   const [apiTeam, setApiTeam] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [monthlyRealization, setMonthlyRealization] = useState(() => {
+    const value = typeof window !== 'undefined' ? window.__BOOTSTRAP_DATA__?.['monthly-realizations'] : null
+    return (Array.isArray(value) ? value : value?.data || [])[0] || null
+  });
 
   // Icon mapping for programs (string to React component)
   const iconMap = {
@@ -66,7 +71,6 @@ const HomePage = () => {
     const controller = new AbortController();
     let cancelled = false;
     async function load() {
-      setLoading(true);
       try {
         const results = await Promise.allSettled([
           apiFetch('/hero-slides', { signal: controller.signal }),
@@ -93,6 +97,8 @@ const HomePage = () => {
 
         setHeroSlides(heroSlidesRes?.data || heroSlidesRes || []);
         setHeroStats(heroStatsRes?.data || heroStatsRes || []);
+        const managedStats = typeof window !== 'undefined' ? window.__BOOTSTRAP_DATA__?.['site-stats'] : null;
+        if (managedStats) setSiteStats(managedStats);
 
         const prog = (programs?.data || programs || []).map((p) => ({
           ...p,
@@ -133,8 +139,6 @@ const HomePage = () => {
         setApiTeam(teamArr);
       } catch (e) {
         if (cancelled) return;
-      } finally {
-        if (!cancelled) setLoading(false);
       }
     }
 
@@ -146,19 +150,12 @@ const HomePage = () => {
     };
   }, []);
 
-  if (loading) {
-    return (
-      <section className="pt-20 min-h-[70vh] flex items-center">
-        <div className="container-max w-full py-16 text-center">
-          <div className="inline-flex items-center gap-3 rounded-full border border-primary/15 bg-primary/5 px-5 py-3 text-sm text-primary" role="status" aria-live="polite">
-            <span className="h-2 w-2 rounded-full bg-primary animate-pulse" aria-hidden="true" />
-            Loading the latest IEYDA updates…
-          </div>
-        </div>
-      </section>
-    );
-  }
-
+  useEffect(() => {
+    apiFetch('/monthly-realizations').then((value) => {
+      const items = value?.data || value || [];
+      if (Array.isArray(items) && items[0]) setMonthlyRealization(items[0]);
+    }).catch(() => {});
+  }, []);
 
   // Use only dynamic data from API
   const programsSource = Array.isArray(apiPrograms) ? apiPrograms : [];
@@ -183,25 +180,25 @@ const HomePage = () => {
 
   const stats = [
     {
-      number: totalBeneficiaries ? totalBeneficiaries + '+' : '0',
+      number: siteStats?.youth_empowered || (totalBeneficiaries ? totalBeneficiaries + '+' : '0'),
       label: 'Youth Empowered',
       icon: Users,
       description: 'Young people trained and empowered',
     },
     {
-      number: totalPrograms,
+      number: siteStats?.active_programs || totalPrograms,
       label: 'Programs Delivered',
       icon: Target,
       description: 'Successful programs implemented',
     },
     {
-      number: uniqueLocations.length,
+      number: siteStats?.communities_reached || uniqueLocations.length,
       label: 'Communities Reached',
       icon: MapPin,
       description: 'Communities across the Emirate',
     },
     {
-      number: yearsOfImpact,
+      number: siteStats?.years_of_service || yearsOfImpact,
       label: 'Years of Impact',
       icon: Award,
       description: 'Decade of community service',
@@ -359,6 +356,25 @@ const HomePage = () => {
 
       {/* Leadership Section (Dynamic) */}
       <LeadershipSectionDynamic leaders={apiTeam} />
+
+      {monthlyRealization && (
+        <section className="section-padding bg-[#fffaf0]">
+          <div className="container-max"><MonthlyRealizationCard realization={monthlyRealization} /></div>
+        </section>
+      )}
+
+      <section className="section-padding bg-primary text-primary-foreground">
+        <div className="container-max flex flex-col items-center justify-between gap-6 text-center md:flex-row md:text-left">
+          <div>
+            <Badge className="mb-4 bg-secondary/20 text-secondary">Our shared heritage</Badge>
+            <h2 className="text-3xl font-bold md:text-4xl">Discover the story of Ilorin</h2>
+            <p className="mt-3 max-w-2xl text-primary-foreground/80">Walk through the milestones, people, and shared responsibility that continue to shape the Ilorin Emirate community.</p>
+          </div>
+          <Link to="/history/ilorin" className="shrink-0">
+            <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">See Ilorin history <ArrowRight className="ml-2 h-4 w-4" /></Button>
+          </Link>
+        </div>
+      </section>
 
       {/* News Section with See More/Less */}
       <section className="section-padding">

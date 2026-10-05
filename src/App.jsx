@@ -6,6 +6,7 @@ import './App.css'
 // Layout Components
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
+import MeetingNoticePopup from './components/MeetingNoticePopup'
 
 // Page Components (code-split with React.lazy)
 const HomePage = lazy(() => import('./pages/HomePageEnhanced'))
@@ -25,6 +26,7 @@ const CommunityPage = lazy(() => import('./pages/CommunityPage'))
 const TeamPage = lazy(() => import('./pages/TeamPageFinal'))
 const TestimonialsPage = lazy(() => import('./pages/TestimonialsPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
+const IlorinHistoryPage = lazy(() => import('./pages/IlorinHistoryPage'))
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -62,6 +64,7 @@ function AppContent() {
   return (
     <div className="content-wrapper">
         <Header />
+        <MeetingNoticePopup />
         <main className="main-content">
           <AnimatePresence mode="wait">
             <Suspense fallback={null}>
@@ -83,6 +86,7 @@ function AppContent() {
                 <Route path="/community" element={<Page><CommunityPage /></Page>} />
                 <Route path="/team" element={<Page><TeamPage /></Page>} />
                 <Route path="/testimonials" element={<Page><TestimonialsPage /></Page>} />
+                <Route path="/history/ilorin" element={<Page><IlorinHistoryPage /></Page>} />
                 <Route path="*" element={<Page><NotFoundPage /></Page>} />
               </Routes>
             </Suspense>

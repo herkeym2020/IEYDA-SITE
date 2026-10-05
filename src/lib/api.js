@@ -10,6 +10,7 @@ const inflight = new Map();    // key -> promise
 const BOOTSTRAP_KEYS = new Set([
   'hero-slides',
   'hero-stats',
+  'site-stats',
   'news',
   'events',
   'past-events',
@@ -19,6 +20,9 @@ const BOOTSTRAP_KEYS = new Set([
   'testimonials',
   'communities',
   'settings',
+  'meeting-notices',
+  'monthly-realizations',
+  'history/ilorin',
 ]);
 
 // Access bootstrap data injected by Laravel or populated at runtime
@@ -42,6 +46,7 @@ function primeBootstrapCache() {
   const entries = {
     'hero-slides': boot['hero-slides'],
     'hero-stats': boot['hero-stats'],
+    'site-stats': boot['site-stats'],
     'news': boot['news'],
     'events': boot['events'],
     'past-events': boot['past-events'],
@@ -51,6 +56,9 @@ function primeBootstrapCache() {
     'testimonials': boot['testimonials'],
     'communities': boot['communities'],
     'settings': boot['settings'],
+    'meeting-notices': boot['meeting-notices'],
+    'monthly-realizations': boot['monthly-realizations'],
+    'history/ilorin': boot.history,
   };
   const now = Date.now();
   Object.entries(entries).forEach(([k, v]) => {
@@ -158,6 +166,13 @@ export async function apiFetch(endpoint, options = {}) {
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(new Error('Request timeout')), timeoutMs);
+  if (options.signal) {
+    if (options.signal.aborted) {
+      controller.abort(options.signal.reason);
+    } else {
+      options.signal.addEventListener('abort', () => controller.abort(options.signal.reason), { once: true });
+    }
+  }
 
   const url = `${API_BASE}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
   const headers = {
@@ -169,10 +184,10 @@ export async function apiFetch(endpoint, options = {}) {
   const fetchPromise = (async () => {
     try {
       // Strip custom options that are not valid fetch() properties
-      const { cache: _cache, timeout: _timeout, ...fetchOptions } = options;
+      const { cache: _cache, timeout: _timeout, signal: _signal, ...fetchOptions } = options;
       const response = await fetch(url, {
         credentials: fetchOptions.credentials || 'include',
-        signal: fetchOptions.signal || controller.signal,
+        signal: controller.signal,
         headers,
         ...fetchOptions,
       });

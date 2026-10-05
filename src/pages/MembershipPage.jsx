@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
 import { motion } from 'framer-motion'
 import { Badge } from '@/components/ui/badge'
@@ -24,6 +24,24 @@ const MembershipPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedLGA, setSelectedLGA] = useState('all')
   const [viewMode, setViewMode] = useState('cards') // 'cards', 'table', 'list'
+  const [associations, setAssociations] = useState([])
+  const [directoryError, setDirectoryError] = useState(null)
+  const [siteStats, setSiteStats] = useState(() => (typeof window !== 'undefined' ? window.__BOOTSTRAP_DATA__?.['site-stats'] : null))
+
+  useEffect(() => {
+    const controller = new AbortController()
+    apiFetch('/communities', { signal: controller.signal })
+      .then((data) => setAssociations(Array.isArray(data) ? data : data?.data || []))
+      .catch((error) => {
+        if (error?.name !== 'AbortError') setDirectoryError('Unable to load the approved association directory.')
+      })
+    return () => controller.abort()
+  }, [])
+
+  useEffect(() => {
+    const promise = typeof window !== 'undefined' ? window.__BOOTSTRAP_PROMISE__ : null
+    promise?.then(() => setSiteStats(window.__BOOTSTRAP_DATA__?.['site-stats'] || null))
+  }, [])
   
   // Form state
   const [form, setForm] = useState({
@@ -97,107 +115,19 @@ const MembershipPage = () => {
     return false;
   };
 
-  // List of all registered associations from the provided data
-  const associations = [
-    { name: "Adewole Youth Development Association", lga: "Ilorin East" },
-    { name: "Adio Community Youth Development Association", lga: "Ilorin West" },
-    { name: "Agaka Development Association", lga: "Ilorin South" },
-    { name: "Agbaji Youth Development Association", lga: "Ilorin East" },
-    { name: "Agege Abattoir Youth Development Association", lga: "Ilorin West" },
-    { name: "Ajasa Youth Development Association", lga: "Ilorin South" },
-    { name: "Ajikobi Youth Development Association", lga: "Ilorin West" },
-    { name: "Akalambi Youth Development Association", lga: "Ilorin East" },
-    { name: "Alalubosa Youth Development Association", lga: "Ilorin West" },
-    { name: "Alanamu Youth Development Association", lga: "Ilorin South" },
-    { name: "Alapa Youth Development Association", lga: "Ilorin East" },
-    { name: "Alimayaki Development Progressive Forum", lga: "Moro" },
-    { name: "Amule-Olomooba Youth Development Association", lga: "Ilorin West" },
-    { name: "An-Nur Isale-Maliki Youth Development Association", lga: "Ilorin West" },
-    { name: "Apata Aiyegun Youth Development Association", lga: "Ilorin East" },
-    { name: "Asalapa Youth Development Association", lga: "Asa" },
-    { name: "ASHI", lga: "Ilorin South" },
-    { name: "Awoli Progressive Forum", lga: "Ilorin West" },
-    { name: "Baboko Ward Youth Development Association", lga: "Ilorin South" },
-    { name: "Badari Youth Development Association", lga: "Ilorin East" },
-    { name: "Balogun Gambari Youth Movement", lga: "Ilorin West" },
-    { name: "Banni Community Youth Development Association", lga: "Ilorin East" },
-    { name: "Baruba Youth Development Association", lga: "Moro" },
-    { name: "Bijouro Youth Development Association", lga: "Ilorin South" },
-    { name: "Bolanta Youth Development Association", lga: "Ilorin West" },
-    { name: "Budo-Egba Youth Development Association", lga: "Ilorin East" },
-    { name: "Ebu-Gada Youth Development Association", lga: "Ilorin South" },
-    { name: "Edun Youth Development Association", lga: "Ilorin West" },
-    { name: "Efue Youth Development Association", lga: "Ilorin East" },
-    { name: "Ehinkule-Oba Youth Development Association", lga: "Ilorin West" },
-    { name: "Ejidongari Youth Development Association", lga: "Ilorin South" },
-    { name: "Erubu-Asunnara Youth Development Association", lga: "Ilorin East" },
-    { name: "Fate Youth Development Association", lga: "Ilorin West" },
-    { name: "Gaa-Ajia Youth Development Association", lga: "Ilorin South" },
-    { name: "Gaa-Akanbi Youth Development Association", lga: "Ilorin East" },
-    { name: "Gaa-Mejiro Youth Development Association", lga: "Ilorin West" },
-    { name: "Gbagba Youth Development Association", lga: "Ilorin South" },
-    { name: "Gegele Youth Development Association", lga: "Ilorin East" },
-    { name: "Gerewu Youth Development Association", lga: "Ilorin West" },
-    { name: "Idiape/Baba-Isale Youth Development Association", lga: "Ilorin South" },
-    { name: "Ikokoro Youth Development Association", lga: "Ilorin East" },
-    { name: "Isale-Koto Youth Development Association", lga: "Ilorin West" },
-    { name: "Isale-Oja Youth Development Association", lga: "Ilorin West" },
-    { name: "Ita-Ogunbo Youth Development Association", lga: "Ilorin South" },
-    { name: "Jebba Youth Development Association", lga: "Moro" },
-    { name: "Koro-Gurumoh Youth Development Association", lga: "Moro" },
-    { name: "Korosayodun Youth Development Association", lga: "Ilorin East" },
-    { name: "Kulende Youth Development Association", lga: "Ilorin West" },
-    { name: "Laduba Youth Development Association", lga: "Ilorin South" },
-    { name: "Lajiki Youth Development Association", lga: "Ilorin East" },
-    { name: "Lanwa Youth Development Association", lga: "Ilorin West" },
-    { name: "Magaji-Ngeri Joint Youth Development Association", lga: "Ilorin South" },
-    { name: "Magajin-Yabba Youth Development Association", lga: "Ilorin East" },
-    { name: "Makana Youth Development Association", lga: "Ilorin West" },
-    { name: "Masingba/Okekere Youth Development Association", lga: "Ilorin South" },
-    { name: "Maya/Ile-Apa Youth Development Association", lga: "Ilorin East" },
-    { name: "Obamama Youth Development Association", lga: "Ilorin West" },
-    { name: "Ode-Adana Youth Development Association", lga: "Ilorin South" },
-    { name: "Ode-Alausa Youth Development Association", lga: "Ilorin East" },
-    { name: "Odo-Okun Youth Development Association", lga: "Ilorin West" },
-    { name: "Ojagboro Youth Development Association", lga: "Ilorin South" },
-    { name: "Oju-Ekun/Zarumi Youth Development Association", lga: "Ilorin East" },
-    { name: "Oke-Erin Youth Development Association", lga: "Ilorin West" },
-    { name: "Oke-Ogun Ward Community Development Association", lga: "Ilorin South" },
-    { name: "Oke-Oyi Youth Development Association", lga: "Ilorin East" },
-    { name: "Okelele Youth Development Association", lga: "Ilorin West" },
-    { name: "Olomoyoyo Youth Development Association", lga: "Ilorin South" },
-    { name: "Ori-Okoh Youth Development Association", lga: "Ilorin East" },
-    { name: "Otte Youth Development Association", lga: "Ilorin West" },
-    { name: "Reke Youth Development Association", lga: "Ilorin South" },
-    { name: "Sakama Youth Development Association", lga: "Ilorin East" },
-    { name: "Sakele Youth Development Association", lga: "Ilorin West" },
-    { name: "Sosoki Youth Development Association", lga: "Ilorin South" },
-    { name: "Tanke Iledu Youth Development Association", lga: "Ilorin East" },
-    { name: "Ubandawaki Youth Development Association", lga: "Ilorin West" },
-    { name: "Yaluma/Oloyin Youth Development Association", lga: "Ilorin South" },
-    { name: "Afon Youth Development Association", lga: "Asa" },
-    { name: "Eruku Youth Development Association", lga: "Asa" },
-    { name: "Abayawo Youth Development Association", lga: "Asa" },
-    { name: "Alaya Youth Development Association", lga: "Asa" },
-    { name: "Aireke Youth Development Association", lga: "Asa" },
-    { name: "Lasoju Youth Development Association", lga: "Moro" },
-    { name: "Balogun Fulani Youth Development Association", lga: "Moro" },
-    { name: "Efue Berikodo Youth Development Association", lga: "Moro" }
-  ]
-
-  const lgas = ["all", "Asa", "Ilorin East", "Ilorin South", "Ilorin West", "Moro"]
+  const lgas = ['all', ...Array.from(new Set(associations.map((association) => association.lga).filter(Boolean))).sort()]
 
   const filteredAssociations = associations.filter(association => {
-    const matchesSearch = association.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = String(association.name || '').toLowerCase().includes(searchTerm.toLowerCase())
     const matchesLGA = selectedLGA === 'all' || association.lga === selectedLGA
     return matchesSearch && matchesLGA
   })
 
   const stats = [
-    { number: "200+", label: "Registered Associations", icon: Building },
-    { number: "2.3M+", label: "Youth Population Served", icon: Users },
-    { number: "5", label: "Local Government Areas", icon: MapPin },
-    { number: "11", label: "Years of Service", icon: Calendar }
+    { number: associations.length || siteStats?.youth_associations || "0", label: "Approved Associations", icon: Building },
+    { number: siteStats?.youth_population || "0", label: "Youth Population Served", icon: Users },
+    { number: siteStats?.lgas_covered || "0", label: "Local Government Areas", icon: MapPin },
+    { number: siteStats?.years_of_service || "0", label: "Years of Service", icon: Calendar }
   ]
 
   return (
@@ -261,6 +191,7 @@ const MembershipPage = () => {
           </motion.div>
 
           {/* Search, Filter, and View Mode */}
+      {directoryError && <p className="mb-4 text-center text-sm text-muted-foreground">{directoryError}</p>}
           <div className="flex flex-col md:flex-row gap-4 mb-8 items-center justify-between">
             <div className="flex-1 w-full md:w-auto flex gap-4">
               <div className="relative flex-1">
@@ -653,4 +584,3 @@ const MembershipPage = () => {
 }
 
 export default MembershipPage
-

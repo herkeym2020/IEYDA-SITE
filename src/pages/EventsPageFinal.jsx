@@ -66,6 +66,8 @@ const EventsPage = () => {
         const transformedEvents = eventsData.map(event => ({
           ...event,
           image: getImageUrl(event.image),
+          highlights: Array.isArray(event.highlights) ? event.highlights : [],
+          speakers: Array.isArray(event.speakers) ? event.speakers : [],
           registration: event.registration || {
             fee: 'Free',
             deadline: event.registration_deadline || event.date,
@@ -77,6 +79,8 @@ const EventsPage = () => {
         const transformedPastEvents = pastEventsData.map(event => ({
           ...event,
           image: getImageUrl(event.image),
+          highlights: Array.isArray(event.highlights) ? event.highlights : [],
+          speakers: Array.isArray(event.speakers) ? event.speakers : [],
           registration: event.registration || {
             fee: 'Free',
             deadline: event.registration_deadline || event.date,
