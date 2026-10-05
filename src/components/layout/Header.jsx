@@ -58,7 +58,7 @@ const Header = () => {
   }, [])
 
   const navigation = [
-    { name: 'Home', href: '/' },
+    // { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
     { name: 'Executive', href: '/team' },
     { name: 'Membership', href: '/membership' },
@@ -143,9 +143,9 @@ const Header = () => {
 
           {/* Action Buttons */}
           <div className="hidden lg:flex items-center flex-wrap gap-2 min-w-0">
-            <Link to="/guest-registration" className="min-w-0">
+            {/* <Link to="/guest-registration" className="min-w-0">
               <Button size="sm" className="btn-outline mr-2">Register (Guest)</Button>
-            </Link>
+            </Link> */}
             <a
               href="/financial-membership/index.html"
               className="min-w-0"
