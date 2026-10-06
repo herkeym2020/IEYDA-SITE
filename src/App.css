@@ -369,7 +369,7 @@
 .app-preloader__ring { position: absolute; inset: 0; border-radius: 999px; border: 1px solid rgba(226, 189, 83, 0.55); }
 .app-preloader__ring--outer { animation: app-preloader-spin 5s linear infinite; border-left-color: transparent; border-right-color: transparent; }
 .app-preloader__ring--inner { inset: 0.8rem; border-color: rgba(255,255,255,0.18); animation: app-preloader-spin-reverse 4s linear infinite; }
-.app-preloader__initials { position: relative; z-index: 1; font-weight: 900; letter-spacing: 0.16em; color: #e2bd53; }
+.app-preloader__logo { position: relative; z-index: 1; width: 5.6rem; height: 5.6rem; object-fit: contain; filter: drop-shadow(0 0 12px rgba(226, 189, 83, 0.32)); }
 .app-preloader__title { max-width: 28rem; margin: 0; font-weight: 700; letter-spacing: 0.02em; }
 .app-preloader__message { margin: 0; color: rgba(255,255,255,0.62); font-size: 0.9rem; }
 .app-preloader__track { width: min(17rem, 75vw); height: 3px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,0.12); }

@@ -324,13 +324,7 @@ const HomePage = () => {
                         {program.description}
                       </p>
                       
-                      <Button 
-                        className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200"
-                        variant="outline"
-                      >
-                        Learn More
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
+                      <Link to="/empowerment" className="block"><Button className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200" variant="outline">Learn More<ArrowRight className="h-4 w-4 ml-2" /></Button></Link>
                     </div>
                   </CardContent>
                 </Card>
@@ -359,11 +353,13 @@ const HomePage = () => {
 
       {monthlyRealization && (
         <section className="section-padding bg-[#fffaf0]">
-          <div className="container-max"><MonthlyRealizationCard realization={monthlyRealization} /></div>
+          <div className="container-max"><div className="mb-8 flex items-end justify-between gap-4"><div><Badge className="mb-3 bg-amber-100 text-amber-900"><Award className="mr-2 h-4 w-4" /> Community recognition</Badge><h2 className="text-3xl font-bold md:text-4xl">Community of the Month</h2><p className="mt-2 max-w-2xl text-muted-foreground">Celebrating practical service and development work across the Ilorin Emirate.</p></div><Link to="/community" className="hidden text-sm font-semibold text-primary hover:underline sm:block">View communities <ArrowRight className="ml-1 inline h-4 w-4" /></Link></div><MonthlyRealizationCard realization={monthlyRealization} /></div>
         </section>
       )}
 
-      <section className="section-padding bg-primary text-primary-foreground">
+      <section className="relative isolate overflow-hidden section-padding bg-primary text-primary-foreground">
+        <img src="/history/ilorin-1.jpeg" alt="" className="absolute inset-0 -z-10 h-full w-full object-cover opacity-15" />
+        <div className="absolute inset-0 -z-10 bg-primary/75" />
         <div className="container-max flex flex-col items-center justify-between gap-6 text-center md:flex-row md:text-left">
           <div>
             <Badge className="mb-4 bg-secondary/20 text-secondary">Our shared heritage</Badge>
@@ -444,14 +440,7 @@ const HomePage = () => {
                         {news.excerpt}
                       </p>
                       
-                      <Button 
-                        className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200"
-                        variant="outline"
-                        size="sm"
-                      >
-                        Read More
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
+                      <Link to="/news" className="block"><Button className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200" variant="outline" size="sm">Read More<ArrowRight className="h-4 w-4 ml-2" /></Button></Link>
                     </div>
                   </CardContent>
                 </Card>
@@ -634,14 +623,7 @@ const HomePage = () => {
                         {event.description}
                       </p>
                       
-                      <Button 
-                        className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200"
-                        variant="outline"
-                        size="sm"
-                      >
-                        Register Now
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
+                      <Link to="/guest-registration" className="block"><Button className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200" variant="outline" size="sm">Register Now<ArrowRight className="h-4 w-4 ml-2" /></Button></Link>
                     </div>
                   </CardContent>
                 </Card>
