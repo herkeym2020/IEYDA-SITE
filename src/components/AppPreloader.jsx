@@ -5,7 +5,7 @@ export default function AppPreloader({ error = false }) {
       <div className="app-preloader__mark" aria-hidden="true">
         <span className="app-preloader__ring app-preloader__ring--outer" />
         <span className="app-preloader__ring app-preloader__ring--inner" />
-        <span className="app-preloader__initials">IEYDA</span>
+        <img className="app-preloader__logo" src="/ieyda_logo_transparent.png" alt="IEYDA" />
       </div>
       <p className="app-preloader__title">Ilorin Emirate Youth Development Association</p>
       <p className="app-preloader__message">{error ? 'Connecting to the latest community update…' : 'Preparing the latest community update…'}</p>
