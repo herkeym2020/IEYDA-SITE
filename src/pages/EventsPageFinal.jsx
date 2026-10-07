@@ -39,6 +39,7 @@ import { getImageUrl } from '@/lib/utils'
 const EventsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [selectedEvent, setSelectedEvent] = useState(null)
+  const selectedPastEvent = selectedEvent && allPastEvents.some((event) => event.id === selectedEvent.id)
   const [showAllUpcoming, setShowAllUpcoming] = useState(false)
   const [showAllPast, setShowAllPast] = useState(false)
   const [showAllFeatured, setShowAllFeatured] = useState(false)
@@ -908,6 +909,20 @@ const EventsPage = () => {
           )}
         </div>
       </section>
+
+      {selectedPastEvent && (
+        <Dialog open={true} onOpenChange={(open) => { if (!open) setSelectedEvent(null) }}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader><DialogTitle className="text-2xl">{selectedPastEvent.title}</DialogTitle></DialogHeader>
+            <img src={selectedPastEvent.image} alt={selectedPastEvent.title} className="h-56 w-full rounded-lg object-cover" />
+            <div className="space-y-3 text-muted-foreground">
+              <p><strong>Date:</strong> {new Date(selectedPastEvent.date).toLocaleDateString()}</p>
+              <p><strong>Category:</strong> {selectedPastEvent.category}</p>
+              <p className="leading-relaxed">{selectedPastEvent.description}</p>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Call to Action Section */}
       <section className="section-padding bg-linear-to-r from-primary via-primary/90 to-accent text-white relative overflow-hidden">
