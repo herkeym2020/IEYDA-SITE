@@ -56,14 +56,6 @@ const AboutPage = () => {
     }
   }, [])
 
-  if (loading) {
-    return (
-      <div className="pt-20">
-        <div className="container-max py-16 text-center text-muted-foreground">Loading...</div>
-      </div>
-    )
-  }
-
   if (error) {
     return (
       <div className="pt-20">
@@ -429,4 +421,3 @@ const AboutPage = () => {
 }
 
 export default AboutPage
-

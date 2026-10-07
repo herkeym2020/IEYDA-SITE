@@ -95,7 +95,7 @@ const ContactPage = () => {
       icon: Building,
       title: "National Secretariat",
       details: [
-        settings.office_address || "Aishat Adepate House, Edun Street, Ilorin, Kwara State, Nigeria"
+        settings.contact_address || settings.address || settings.office_address || 'IEYDA National Secretariat, Ilorin, Kwara State, Nigeria'
       ],
       color: "text-blue-600",
       bgColor: "bg-blue-50"
@@ -104,9 +104,9 @@ const ContactPage = () => {
       icon: Phone,
       title: "Phone Numbers",
       details: [
-        settings.phone_president ? `${settings.phone_president} (President)` : "+234 8xx xxx xxxx (President)",
-        settings.phone_secretary ? `${settings.phone_secretary} (Secretary)` : "+234 8xx xxx xxxx (Secretary)",
-        settings.phone_general ? `${settings.phone_general} (General Inquiries)` : "+234 8xx xxx xxxx (General Inquiries)"
+        settings.phone_president && `${settings.phone_president} (President)`,
+        settings.phone_secretary && `${settings.phone_secretary} (Secretary)`,
+        settings.contact_phone ? `${settings.contact_phone} (General Inquiries)` : null
       ],
       color: "text-green-600",
       bgColor: "bg-green-50"
@@ -115,9 +115,9 @@ const ContactPage = () => {
       icon: Mail,
       title: "Email Addresses",
       details: [
-        settings.email_general ? `${settings.email_general} (General)` : "talk2ieyda@gmail.com (General)",
-        settings.email_president ? `${settings.email_president} (President)` : "president@ieyda.org (President)",
-        settings.email_secretary ? `${settings.email_secretary} (Secretary)` : "secretary@ieyda.org (Secretary)"
+        settings.email_general ? `${settings.email_general} (General)` : settings.contact_email ? `${settings.contact_email} (General)` : null,
+        settings.email_president && `${settings.email_president} (President)`,
+        settings.email_secretary && `${settings.email_secretary} (Secretary)`
       ],
       color: "text-purple-600",
       bgColor: "bg-purple-50"
@@ -126,55 +126,19 @@ const ContactPage = () => {
       icon: Clock,
       title: "Office Hours",
       details: [
-        settings.office_hours_weekdays || "Monday - Friday: 9:00 AM - 5:00 PM",
-        settings.office_hours_saturday || "Saturday: 10:00 AM - 2:00 PM",
-        settings.office_hours_sunday || "Sunday: Closed"
+        settings.office_hours_weekdays || settings.office_hours || 'Monday - Friday: 9:00 AM - 5:00 PM',
+        settings.office_hours_saturday || null,
+        settings.office_hours_sunday || null
       ],
       color: "text-orange-600",
       bgColor: "bg-orange-50"
     }
   ]
 
-  const departments = settings.departments && Array.isArray(settings.departments)
-    ? settings.departments
-    : [
-      {
-        name: "Youth Development",
-        email: "youth@ieyda.org",
-        phone: "+234 80x xxx xxxx",
-        description: "Skills acquisition, leadership training, and youth empowerment programs"
-      },
-      {
-        name: "Education & Training",
-        email: "education@ieyda.org",
-        phone: "+234 80x xxx xxxx",
-        description: "Scholarship programs, educational support, and capacity building"
-      },
-      {
-        name: "Community Outreach",
-        email: "outreach@ieyda.org",
-        phone: "+234 80x xxx xxxx",
-        description: "Community engagement, rural development, and social intervention"
-      },
-      {
-        name: "ICT & Innovation",
-        email: "ict@ieyda.org",
-        phone: "+234 809 xxx xxxx",
-        description: "Digital literacy programs, technology training, and innovation"
-      },
-      {
-        name: "Events & Programs",
-        email: "events@ieyda.org",
-        phone: "+234 806 xxx xxxx",
-        description: "Event coordination, program management, and community activities"
-      },
-      {
-        name: "Membership Services",
-        email: "membership@ieyda.org",
-        phone: "+234 808 xxx xxxx",
-        description: "Membership registration, benefits, and member support services"
-      }
-    ];
+  const configuredDepartments = typeof settings.departments === 'string' ? (() => { try { return JSON.parse(settings.departments) } catch (_) { return [] } })() : settings.departments
+  const departments = configuredDepartments && Array.isArray(configuredDepartments)
+    ? configuredDepartments
+    : []
 
   const socialLinks = [
     { icon: Facebook, name: "Facebook", url: settings.facebook_url || "https://web.facebook.com/ilorinemirateyouthdevelopmentassociation/", color: "text-blue-600" },
@@ -334,7 +298,7 @@ const ContactPage = () => {
                     </div>
                     <h3 className="text-lg font-semibold mb-4">{info.title}</h3>
                     <div className="space-y-2">
-                      {info.details.map((detail, idx) => (
+                      {info.details.filter(Boolean).map((detail, idx) => (
                         <p key={idx} className="text-sm text-muted-foreground">
                           {detail}
                         </p>

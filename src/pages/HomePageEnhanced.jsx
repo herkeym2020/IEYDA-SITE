@@ -7,6 +7,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import HeroSlider from '@/components/HeroSlider'
 import LeadershipSectionDynamic from '@/components/LeadershipSectionDynamic'
+import MonthlyRealizationCard from '@/components/MonthlyRealizationCard'
+import HomeContentDialog from '@/components/HomeContentDialog'
 import { 
   Users, 
   Target, 
@@ -27,13 +29,17 @@ import { getImageUrl } from '@/lib/utils'
 const HomePage = () => {
   const [heroSlides, setHeroSlides] = useState([]);
   const [heroStats, setHeroStats] = useState([]);
+  const [siteStats, setSiteStats] = useState(() => (typeof window !== 'undefined' ? window.__BOOTSTRAP_DATA__?.['site-stats'] : null));
   const [apiPrograms, setApiPrograms] = useState([])
   const [apiNews, setApiNews] = useState([])
   const [apiTestimonials, setApiTestimonials] = useState([])
   const [apiEvents, setApiEvents] = useState([])
   const [apiTeam, setApiTeam] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [selectedContent, setSelectedContent] = useState(null)
+  const [monthlyRealization, setMonthlyRealization] = useState(() => {
+    const value = typeof window !== 'undefined' ? window.__BOOTSTRAP_DATA__?.['monthly-realizations'] : null
+    return (Array.isArray(value) ? value : value?.data || [])[0] || null
+  });
 
   // Icon mapping for programs (string to React component)
   const iconMap = {
@@ -67,10 +73,8 @@ const HomePage = () => {
     const controller = new AbortController();
     let cancelled = false;
     async function load() {
-      setLoading(true);
-      setError(null);
       try {
-        const [heroSlidesRes, heroStatsRes, programs, news, testimonials, events, team] = await Promise.all([
+        const results = await Promise.allSettled([
           apiFetch('/hero-slides', { signal: controller.signal }),
           apiFetch('/hero-stats', { signal: controller.signal }),
           apiFetch('/programs', { signal: controller.signal }),
@@ -82,8 +86,21 @@ const HomePage = () => {
 
         if (cancelled) return;
 
+        const valueOr = (index, fallback = []) => (
+          results[index]?.status === 'fulfilled' ? results[index].value : fallback
+        );
+        const heroSlidesRes = valueOr(0);
+        const heroStatsRes = valueOr(1);
+        const programs = valueOr(2);
+        const news = valueOr(3);
+        const testimonials = valueOr(4);
+        const events = valueOr(5);
+        const team = valueOr(6);
+
         setHeroSlides(heroSlidesRes?.data || heroSlidesRes || []);
         setHeroStats(heroStatsRes?.data || heroStatsRes || []);
+        const managedStats = typeof window !== 'undefined' ? window.__BOOTSTRAP_DATA__?.['site-stats'] : null;
+        if (managedStats) setSiteStats(managedStats);
 
         const prog = (programs?.data || programs || []).map((p) => ({
           ...p,
@@ -124,9 +141,6 @@ const HomePage = () => {
         setApiTeam(teamArr);
       } catch (e) {
         if (cancelled) return;
-        setError('Failed to load homepage data.');
-      } finally {
-        if (!cancelled) setLoading(false);
       }
     }
 
@@ -138,36 +152,12 @@ const HomePage = () => {
     };
   }, []);
 
-  if (loading) {
-    return (
-      <div className="pt-20">
-        <div className="container-max py-16">
-          <div className="animate-pulse space-y-12">
-            <div className="h-96 bg-gray-200 rounded-2xl"></div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-32 bg-gray-200 rounded-xl"></div>
-              ))}
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-64 bg-gray-200 rounded-xl"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="pt-20">
-        <div className="container-max py-16 text-center text-red-600">{error}</div>
-      </div>
-    );
-  }
-
+  useEffect(() => {
+    apiFetch('/monthly-realizations').then((value) => {
+      const items = value?.data || value || [];
+      if (Array.isArray(items) && items[0]) setMonthlyRealization(items[0]);
+    }).catch(() => {});
+  }, []);
 
   // Use only dynamic data from API
   const programsSource = Array.isArray(apiPrograms) ? apiPrograms : [];
@@ -192,25 +182,25 @@ const HomePage = () => {
 
   const stats = [
     {
-      number: totalBeneficiaries ? totalBeneficiaries + '+' : '0',
+      number: siteStats?.youth_empowered || (totalBeneficiaries ? totalBeneficiaries + '+' : '0'),
       label: 'Youth Empowered',
       icon: Users,
       description: 'Young people trained and empowered',
     },
     {
-      number: totalPrograms,
+      number: siteStats?.active_programs || totalPrograms,
       label: 'Programs Delivered',
       icon: Target,
       description: 'Successful programs implemented',
     },
     {
-      number: uniqueLocations.length,
+      number: siteStats?.communities_reached || uniqueLocations.length,
       label: 'Communities Reached',
       icon: MapPin,
       description: 'Communities across the Emirate',
     },
     {
-      number: yearsOfImpact,
+      number: siteStats?.years_of_service || yearsOfImpact,
       label: 'Years of Impact',
       icon: Award,
       description: 'Decade of community service',
@@ -298,7 +288,7 @@ const HomePage = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full">
+                <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full cursor-pointer" onClick={() => setSelectedContent({ kind: 'program', item: program })}>
                   <CardContent className="p-0">
                     <div className="relative h-48 overflow-hidden">
                       <img 
@@ -336,13 +326,7 @@ const HomePage = () => {
                         {program.description}
                       </p>
                       
-                      <Button 
-                        className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200"
-                        variant="outline"
-                      >
-                        Learn More
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
+                      <Button onClick={(event) => { event.stopPropagation(); setSelectedContent({ kind: 'program', item: program }) }} className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200" variant="outline">Learn More<ArrowRight className="h-4 w-4 ml-2" /></Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -368,6 +352,27 @@ const HomePage = () => {
 
       {/* Leadership Section (Dynamic) */}
       <LeadershipSectionDynamic leaders={apiTeam} />
+
+      {monthlyRealization && (
+        <section className="section-padding bg-[#fffaf0]">
+          <div className="container-max"><div className="mb-8 flex items-end justify-between gap-4"><div><Badge className="mb-3 bg-amber-100 text-amber-900"><Award className="mr-2 h-4 w-4" /> Community recognition</Badge><h2 className="text-3xl font-bold md:text-4xl">Community of the Month</h2><p className="mt-2 max-w-2xl text-muted-foreground">Celebrating practical service and development work across the Ilorin Emirate.</p></div><Link to="/community" className="hidden text-sm font-semibold text-primary hover:underline sm:block">View communities <ArrowRight className="ml-1 inline h-4 w-4" /></Link></div><MonthlyRealizationCard realization={monthlyRealization} /></div>
+        </section>
+      )}
+
+      <section className="relative isolate overflow-hidden section-padding bg-primary text-primary-foreground">
+        <img src="/history/ilorin-1.jpeg" alt="" className="absolute inset-0 -z-10 h-full w-full object-cover opacity-15" />
+        <div className="absolute inset-0 -z-10 bg-primary/75" />
+        <div className="container-max flex flex-col items-center justify-between gap-6 text-center md:flex-row md:text-left">
+          <div>
+            <Badge className="mb-4 bg-secondary/20 text-secondary">Our shared heritage</Badge>
+            <h2 className="text-3xl font-bold md:text-4xl">Discover the story of Ilorin</h2>
+            <p className="mt-3 max-w-2xl text-primary-foreground/80">Walk through the milestones, people, and shared responsibility that continue to shape the Ilorin Emirate community.</p>
+          </div>
+          <Link to="/history/ilorin" className="shrink-0">
+            <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">See Ilorin history <ArrowRight className="ml-2 h-4 w-4" /></Button>
+          </Link>
+        </div>
+      </section>
 
       {/* News Section with See More/Less */}
       <section className="section-padding">
@@ -399,7 +404,7 @@ const HomePage = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full">
+                <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full cursor-pointer" onClick={() => setSelectedContent({ kind: 'news', item: news })}>
                   <CardContent className="p-0">
                     <div className="relative h-48 overflow-hidden">
                       <img 
@@ -437,14 +442,7 @@ const HomePage = () => {
                         {news.excerpt}
                       </p>
                       
-                      <Button 
-                        className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200"
-                        variant="outline"
-                        size="sm"
-                      >
-                        Read More
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
+                      <Button onClick={(event) => { event.stopPropagation(); setSelectedContent({ kind: 'news', item: news }) }} className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200" variant="outline" size="sm">Read More<ArrowRight className="h-4 w-4 ml-2" /></Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -467,6 +465,8 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      <HomeContentDialog content={selectedContent} onClose={() => setSelectedContent(null)} />
 
       {/* Testimonials Section with See More/Less */}
       <section className="section-padding bg-linear-to-b from-gray-50 to-white">
@@ -577,7 +577,7 @@ const HomePage = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full">
+                <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full cursor-pointer" onClick={() => setSelectedContent({ kind: 'event', item: event })}>
                   <CardContent className="p-0">
                     <div className="relative h-48 overflow-hidden">
                       <img 
@@ -627,14 +627,7 @@ const HomePage = () => {
                         {event.description}
                       </p>
                       
-                      <Button 
-                        className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200"
-                        variant="outline"
-                        size="sm"
-                      >
-                        Register Now
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
+                      <Button onClick={(eventClick) => { eventClick.stopPropagation(); setSelectedContent({ kind: 'event', item: event }) }} className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200" variant="outline" size="sm">View details<ArrowRight className="h-4 w-4 ml-2" /></Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -725,4 +718,3 @@ const HomePage = () => {
 }
 
 export default HomePage
-

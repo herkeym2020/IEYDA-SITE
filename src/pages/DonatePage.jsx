@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -27,6 +27,12 @@ const DonatePage = () => {
   const [selectedAmount, setSelectedAmount] = useState('')
   const [customAmount, setCustomAmount] = useState('')
   const [donationType, setDonationType] = useState('general')
+  const [siteStats, setSiteStats] = useState(() => (typeof window !== 'undefined' ? window.__BOOTSTRAP_DATA__?.['site-stats'] : null))
+
+  useEffect(() => {
+    const promise = typeof window !== 'undefined' ? window.__BOOTSTRAP_PROMISE__ : null
+    promise?.then(() => setSiteStats(window.__BOOTSTRAP_DATA__?.['site-stats'] || null))
+  }, [])
 
   const donationOptions = [
     {
@@ -133,10 +139,10 @@ const DonatePage = () => {
   ]
 
   const achievements = [
-    { number: '1,500+', label: 'Youth Empowered', icon: Users },
-    { number: '500+', label: 'Scholarships Awarded', icon: GraduationCap },
-    { number: '50+', label: 'Communities Served', icon: Globe },
-    { number: '₦50M+', label: 'Impact Generated', icon: TrendingUp }
+    { number: siteStats?.youth_empowered || '0', label: 'Youth Empowered', icon: Users },
+    { number: siteStats?.scholarships_awarded || '0', label: 'Scholarships Awarded', icon: GraduationCap },
+    { number: siteStats?.communities_reached || '0', label: 'Communities Served', icon: Globe },
+    { number: siteStats?.impact_generated || '₦0+', label: 'Impact Generated', icon: TrendingUp }
   ]
 
   return (
@@ -527,4 +533,3 @@ const DonatePage = () => {
 }
 
 export default DonatePage
-

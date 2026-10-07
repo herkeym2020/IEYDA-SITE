@@ -27,6 +27,15 @@ export function getImageUrl(imgPath) {
   if (imgPath.startsWith('/')) return BACKEND_ORIGIN + imgPath;
   return BACKEND_ORIGIN + '/' + imgPath;
 }
+
+export function stripHtml(value = '') {
+  if (value === null || value === undefined) return '';
+  const html = String(value).replace(/<\/?(p|div|br|li|h[1-6])\b[^>]*>/gi, '\n').replace(/<[^>]*>/g, '');
+  const textarea = typeof document !== 'undefined' ? document.createElement('textarea') : null;
+  return (textarea ? (textarea.innerHTML = html, textarea.value) : html)
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge"
 

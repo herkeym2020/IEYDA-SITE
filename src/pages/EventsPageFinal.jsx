@@ -39,6 +39,7 @@ import { getImageUrl } from '@/lib/utils'
 const EventsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [selectedEvent, setSelectedEvent] = useState(null)
+  const selectedPastEvent = selectedEvent && allPastEvents.some((event) => event.id === selectedEvent.id)
   const [showAllUpcoming, setShowAllUpcoming] = useState(false)
   const [showAllPast, setShowAllPast] = useState(false)
   const [showAllFeatured, setShowAllFeatured] = useState(false)
@@ -66,6 +67,8 @@ const EventsPage = () => {
         const transformedEvents = eventsData.map(event => ({
           ...event,
           image: getImageUrl(event.image),
+          highlights: Array.isArray(event.highlights) ? event.highlights : [],
+          speakers: Array.isArray(event.speakers) ? event.speakers : [],
           registration: event.registration || {
             fee: 'Free',
             deadline: event.registration_deadline || event.date,
@@ -77,6 +80,8 @@ const EventsPage = () => {
         const transformedPastEvents = pastEventsData.map(event => ({
           ...event,
           image: getImageUrl(event.image),
+          highlights: Array.isArray(event.highlights) ? event.highlights : [],
+          speakers: Array.isArray(event.speakers) ? event.speakers : [],
           registration: event.registration || {
             fee: 'Free',
             deadline: event.registration_deadline || event.date,
@@ -103,14 +108,6 @@ const EventsPage = () => {
       controller.abort()
     }
   }, [])
-
-  if (loading) {
-    return (
-      <div className="pt-20">
-        <div className="container-max py-16 text-center text-muted-foreground">Loading events...</div>
-      </div>
-    )
-  }
 
   if (error) {
     return (
@@ -261,7 +258,7 @@ const EventsPage = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="group hover:shadow-2xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full">
+                <Card className="group hover:shadow-2xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full cursor-pointer" onClick={() => setSelectedEvent(event)}>
                   <CardContent className="p-0">
                     <div className="relative h-64 overflow-hidden">
                       <img 
@@ -312,7 +309,7 @@ const EventsPage = () => {
                         {event.description}
                       </p>
 
-                      <Dialog>
+                      <Dialog open={selectedEvent?.id === event.id} onOpenChange={(open) => { if (!open) setSelectedEvent(null) }}>
                         <DialogTrigger asChild>
                           <Button 
                             className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200"
@@ -537,7 +534,7 @@ const EventsPage = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full">
+                <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full cursor-pointer" onClick={() => setSelectedEvent(event)}>
                   <CardContent className="p-0">
                     <div className="relative h-48 overflow-hidden">
                       <img 
@@ -587,7 +584,7 @@ const EventsPage = () => {
                         {event.description}
                       </p>
                       
-                      <Dialog>
+                      <Dialog open={selectedEvent?.id === event.id} onOpenChange={(open) => { if (!open) setSelectedEvent(null) }}>
                         <DialogTrigger asChild>
                           <Button 
                             className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200"
@@ -800,7 +797,7 @@ const EventsPage = () => {
                     transition={{ duration: 0.6, delay: index * 0.1 }}
                     viewport={{ once: true }}
                   >
-                    <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full">
+                    <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full cursor-pointer" onClick={() => setSelectedEvent(event)}>
                       <CardContent className="p-0">
                         <div className="relative h-48 overflow-hidden">
                           <img
@@ -913,6 +910,20 @@ const EventsPage = () => {
         </div>
       </section>
 
+      {selectedPastEvent && (
+        <Dialog open={true} onOpenChange={(open) => { if (!open) setSelectedEvent(null) }}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader><DialogTitle className="text-2xl">{selectedPastEvent.title}</DialogTitle></DialogHeader>
+            <img src={selectedPastEvent.image} alt={selectedPastEvent.title} className="h-56 w-full rounded-lg object-cover" />
+            <div className="space-y-3 text-muted-foreground">
+              <p><strong>Date:</strong> {new Date(selectedPastEvent.date).toLocaleDateString()}</p>
+              <p><strong>Category:</strong> {selectedPastEvent.category}</p>
+              <p className="leading-relaxed">{selectedPastEvent.description}</p>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
       {/* Call to Action Section */}
       <section className="section-padding bg-linear-to-r from-primary via-primary/90 to-accent text-white relative overflow-hidden">
         {/* Background Pattern */}
@@ -976,4 +987,3 @@ const EventsPage = () => {
 }
 
 export default EventsPage
-

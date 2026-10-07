@@ -3,10 +3,27 @@
 
 const API_BASE = import.meta.env.VITE_API_URL || 'https://control.ilorinemirateyouths.com/api/v1';
 const DEFAULT_TIMEOUT = 10000; // ms
-const CACHE_TTL = 30000; // ms
+const CACHE_TTL = 1000 * 60 * 60 * 24; // bootstrap data is refreshed in the background
 
 const memoryCache = new Map(); // key -> { ts, data }
 const inflight = new Map();    // key -> promise
+const BOOTSTRAP_KEYS = new Set([
+  'hero-slides',
+  'hero-stats',
+  'site-stats',
+  'news',
+  'events',
+  'past-events',
+  'programs',
+  'team',
+  'gallery',
+  'testimonials',
+  'communities',
+  'settings',
+  'meeting-notices',
+  'monthly-realizations',
+  'history/ilorin',
+]);
 
 // Access bootstrap data injected by Laravel or populated at runtime
 function getBootstrap() {
@@ -22,13 +39,15 @@ function normalizeKey(endpoint) {
 
 // Seed cache from bootstrap to avoid initial network hits
 let primed = false;
+let primedBootstrap = null;
 function primeBootstrapCache() {
-  if (primed) return;
   const boot = getBootstrap();
   if (!boot) return;
+  if (primed && primedBootstrap === boot) return;
   const entries = {
     'hero-slides': boot['hero-slides'],
     'hero-stats': boot['hero-stats'],
+    'site-stats': boot['site-stats'],
     'news': boot['news'],
     'events': boot['events'],
     'past-events': boot['past-events'],
@@ -38,6 +57,9 @@ function primeBootstrapCache() {
     'testimonials': boot['testimonials'],
     'communities': boot['communities'],
     'settings': boot['settings'],
+    'meeting-notices': boot['meeting-notices'],
+    'monthly-realizations': boot['monthly-realizations'],
+    'history/ilorin': boot.history,
   };
   const now = Date.now();
   Object.entries(entries).forEach(([k, v]) => {
@@ -45,6 +67,7 @@ function primeBootstrapCache() {
       memoryCache.set(`GET:${k}`, { ts: now, data: v });
     }
   });
+  primedBootstrap = boot;
   primed = true;
 }
 
@@ -75,6 +98,24 @@ function readCache(key) {
   return cached.data;
 }
 
+async function waitForBootstrap(endpoint, method) {
+  if (method !== 'GET' || !BOOTSTRAP_KEYS.has(normalizeKey(endpoint))) return;
+  if (getBootstrap()) {
+    primeBootstrapCache();
+    return;
+  }
+
+  const bootstrapPromise = typeof window !== 'undefined' ? window.__BOOTSTRAP_PROMISE__ : null;
+  if (!bootstrapPromise) return;
+
+  try {
+    await bootstrapPromise;
+    primeBootstrapCache();
+  } catch (_) {
+    // Bootstrap failure is non-fatal; apiFetch will use the individual endpoint.
+  }
+}
+
 export async function apiFetch(endpoint, options = {}) {
   primeBootstrapCache();
 
@@ -85,6 +126,18 @@ export async function apiFetch(endpoint, options = {}) {
   const timeoutMs = options.timeout || DEFAULT_TIMEOUT;
 
   // Serve from cache if present
+  if (useCache) {
+    const cached = readCache(cacheKey);
+    if (cached !== null && cached !== undefined) {
+      const normalized = normalizeResponse(cached);
+      return attachMeta(normalized.data, normalized.meta);
+    }
+  }
+
+  // The bootstrap request already contains the initial public data set. Wait
+  // for it briefly before opening duplicate requests for the same resources.
+  await waitForBootstrap(endpoint, method);
+
   if (useCache) {
     const cached = readCache(cacheKey);
     if (cached !== null && cached !== undefined) {
@@ -115,6 +168,13 @@ export async function apiFetch(endpoint, options = {}) {
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(new Error('Request timeout')), timeoutMs);
+  if (options.signal) {
+    if (options.signal.aborted) {
+      controller.abort(options.signal.reason);
+    } else {
+      options.signal.addEventListener('abort', () => controller.abort(options.signal.reason), { once: true });
+    }
+  }
 
   const url = `${API_BASE}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
   const headers = {
@@ -126,10 +186,10 @@ export async function apiFetch(endpoint, options = {}) {
   const fetchPromise = (async () => {
     try {
       // Strip custom options that are not valid fetch() properties
-      const { cache: _cache, timeout: _timeout, ...fetchOptions } = options;
+      const { cache: _cache, timeout: _timeout, signal: _signal, ...fetchOptions } = options;
       const response = await fetch(url, {
         credentials: fetchOptions.credentials || 'include',
-        signal: fetchOptions.signal || controller.signal,
+        signal: controller.signal,
         headers,
         ...fetchOptions,
       });
