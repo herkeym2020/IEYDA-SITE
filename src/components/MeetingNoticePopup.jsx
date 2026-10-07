@@ -15,6 +15,10 @@ function dateLabel(value) {
   return new Date(value).toLocaleString('en-NG', { dateStyle: 'full', timeStyle: 'short' })
 }
 
+function isUpcoming(notice) {
+  return Boolean(notice?.starts_at && new Date(notice.starts_at).getTime() > Date.now())
+}
+
 export default function MeetingNoticePopup() {
   const [notices, setNotices] = useState(getInitialNotices)
   const [open, setOpen] = useState(false)
@@ -35,14 +39,17 @@ export default function MeetingNoticePopup() {
 
   useEffect(() => {
     if (!notices.length) return undefined
-    const notice = notices[0]
+    const notice = notices.find(isUpcoming)
+    if (!notice) return undefined
     const key = `ieyda-meeting-notice-${notice.id}`
     if (typeof window !== 'undefined' && window.sessionStorage.getItem(key)) return undefined
-    const timer = window.setTimeout(() => setOpen(true), 900)
+    const timer = window.setTimeout(() => {
+      if (isUpcoming(notice)) setOpen(true)
+    }, 900)
     return () => window.clearTimeout(timer)
   }, [notices])
 
-  const notice = notices[0]
+  const notice = notices.find(isUpcoming)
   if (!notice) return null
   const dismiss = (value) => {
     if (!value && typeof window !== 'undefined') window.sessionStorage.setItem(`ieyda-meeting-notice-${notice.id}`, '1')
@@ -64,7 +71,7 @@ export default function MeetingNoticePopup() {
             {notice.ends_at && <div className="flex items-start gap-3"><Clock3 className="mt-0.5 h-4 w-4 text-primary" /><span>Ends {dateLabel(notice.ends_at)}</span></div>}
             {notice.location && <div className="flex items-start gap-3"><MapPin className="mt-0.5 h-4 w-4 text-primary" /><span>{notice.location}</span></div>}
           </div>
-          <div className="flex flex-wrap gap-3"><Button onClick={() => dismiss(false)}>Close notice</Button>{notice.action_url && <Button asChild variant="outline"><Link to={notice.action_url}>{notice.action_label || 'View details'}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button>}</div>
+          <div className="flex flex-wrap gap-3"><Button onClick={() => dismiss(false)}>Close notice</Button>{notice.action_url && <Button asChild variant="outline"><Link to={notice.action_url} onClick={() => dismiss(false)}>{notice.action_label || 'View details'}<ArrowUpRight className="ml-2 h-4 w-4" /></Link></Button>}</div>
         </div>
       </DialogContent>
     </Dialog>
