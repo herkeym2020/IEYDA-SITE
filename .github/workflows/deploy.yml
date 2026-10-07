@@ -1,0 +1,52 @@
+name: Deploy frontend to production
+
+# Deploys the Vite build (dist/) to Namecheap shared hosting over SSH/rsync.
+# Requires (repo Settings → Secrets and variables → Actions):
+#   Secrets: SSH_HOST, SSH_USERNAME, SSH_PRIVATE_KEY
+#   Vars:    FRONTEND_DEPLOY_PATH (e.g. /home/cpaneluser/public_html), SSH_PORT (default 22),
+#            VITE_API_URL (optional; code falls back to the production API URL)
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-frontend-production
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (fails on errors)
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+
+      - name: Prepare SSH key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "${{ vars.SSH_PORT || 22 }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Deploy dist/ to Namecheap (rsync over SSH)
+        run: |
+          rsync -az --info=stats2 \
+            -e "ssh -p ${{ vars.SSH_PORT || 22 }} -i ~/.ssh/deploy_key -o IdentitiesOnly=yes" \
+            dist/ "${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ vars.FRONTEND_DEPLOY_PATH }}/"
