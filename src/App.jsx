@@ -59,6 +59,25 @@ function AppContent() {
   const location = useLocation()
 
   useEffect(() => {
+    const preload = () => {
+      Promise.all([
+        import('./pages/NewsPageNew'),
+        import('./pages/ProgramsPageNew'),
+        import('./pages/EventsPageFinal'),
+        import('./pages/ContactPageEnhanced'),
+        import('./pages/CommunityPage'),
+        import('./pages/IlorinHistoryPage'),
+      ]).catch(() => {})
+    }
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(preload, { timeout: 2500 })
+      return () => window.cancelIdleCallback(id)
+    }
+    const id = window.setTimeout(preload, 1200)
+    return () => window.clearTimeout(id)
+  }, [])
+
+  useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
   }, [location.pathname, location.search])
 

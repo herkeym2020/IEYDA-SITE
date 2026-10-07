@@ -257,7 +257,7 @@ const EventsPage = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="group hover:shadow-2xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full">
+                <Card className="group hover:shadow-2xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full cursor-pointer" onClick={() => setSelectedEvent(event)}>
                   <CardContent className="p-0">
                     <div className="relative h-64 overflow-hidden">
                       <img 
@@ -308,7 +308,7 @@ const EventsPage = () => {
                         {event.description}
                       </p>
 
-                      <Dialog>
+                      <Dialog open={selectedEvent?.id === event.id} onOpenChange={(open) => { if (!open) setSelectedEvent(null) }}>
                         <DialogTrigger asChild>
                           <Button 
                             className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200"
@@ -533,7 +533,7 @@ const EventsPage = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full">
+                <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full cursor-pointer" onClick={() => setSelectedEvent(event)}>
                   <CardContent className="p-0">
                     <div className="relative h-48 overflow-hidden">
                       <img 
@@ -583,7 +583,7 @@ const EventsPage = () => {
                         {event.description}
                       </p>
                       
-                      <Dialog>
+                      <Dialog open={selectedEvent?.id === event.id} onOpenChange={(open) => { if (!open) setSelectedEvent(null) }}>
                         <DialogTrigger asChild>
                           <Button 
                             className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200"
@@ -796,7 +796,7 @@ const EventsPage = () => {
                     transition={{ duration: 0.6, delay: index * 0.1 }}
                     viewport={{ once: true }}
                   >
-                    <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full">
+                    <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full cursor-pointer" onClick={() => setSelectedEvent(event)}>
                       <CardContent className="p-0">
                         <div className="relative h-48 overflow-hidden">
                           <img

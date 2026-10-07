@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import HeroSlider from '@/components/HeroSlider'
 import LeadershipSectionDynamic from '@/components/LeadershipSectionDynamic'
 import MonthlyRealizationCard from '@/components/MonthlyRealizationCard'
+import HomeContentDialog from '@/components/HomeContentDialog'
 import { 
   Users, 
   Target, 
@@ -34,6 +35,7 @@ const HomePage = () => {
   const [apiTestimonials, setApiTestimonials] = useState([])
   const [apiEvents, setApiEvents] = useState([])
   const [apiTeam, setApiTeam] = useState([]);
+  const [selectedContent, setSelectedContent] = useState(null)
   const [monthlyRealization, setMonthlyRealization] = useState(() => {
     const value = typeof window !== 'undefined' ? window.__BOOTSTRAP_DATA__?.['monthly-realizations'] : null
     return (Array.isArray(value) ? value : value?.data || [])[0] || null
@@ -286,7 +288,7 @@ const HomePage = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full">
+                <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full cursor-pointer" onClick={() => setSelectedContent({ kind: 'program', item: program })}>
                   <CardContent className="p-0">
                     <div className="relative h-48 overflow-hidden">
                       <img 
@@ -324,7 +326,7 @@ const HomePage = () => {
                         {program.description}
                       </p>
                       
-                      <Link to="/empowerment" className="block"><Button className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200" variant="outline">Learn More<ArrowRight className="h-4 w-4 ml-2" /></Button></Link>
+                      <Button onClick={(event) => { event.stopPropagation(); setSelectedContent({ kind: 'program', item: program }) }} className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200" variant="outline">Learn More<ArrowRight className="h-4 w-4 ml-2" /></Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -402,7 +404,7 @@ const HomePage = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full">
+                <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full cursor-pointer" onClick={() => setSelectedContent({ kind: 'news', item: news })}>
                   <CardContent className="p-0">
                     <div className="relative h-48 overflow-hidden">
                       <img 
@@ -440,7 +442,7 @@ const HomePage = () => {
                         {news.excerpt}
                       </p>
                       
-                      <Link to="/news" className="block"><Button className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200" variant="outline" size="sm">Read More<ArrowRight className="h-4 w-4 ml-2" /></Button></Link>
+                      <Button onClick={(event) => { event.stopPropagation(); setSelectedContent({ kind: 'news', item: news }) }} className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200" variant="outline" size="sm">Read More<ArrowRight className="h-4 w-4 ml-2" /></Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -463,6 +465,8 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      <HomeContentDialog content={selectedContent} onClose={() => setSelectedContent(null)} />
 
       {/* Testimonials Section with See More/Less */}
       <section className="section-padding bg-linear-to-b from-gray-50 to-white">
@@ -573,7 +577,7 @@ const HomePage = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full">
+                <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden h-full cursor-pointer" onClick={() => setSelectedContent({ kind: 'event', item: event })}>
                   <CardContent className="p-0">
                     <div className="relative h-48 overflow-hidden">
                       <img 
@@ -623,7 +627,7 @@ const HomePage = () => {
                         {event.description}
                       </p>
                       
-                      <Link to="/guest-registration" className="block"><Button className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200" variant="outline" size="sm">Register Now<ArrowRight className="h-4 w-4 ml-2" /></Button></Link>
+                      <Button onClick={(eventClick) => { eventClick.stopPropagation(); setSelectedContent({ kind: 'event', item: event }) }} className="w-full group-hover:bg-primary group-hover:text-white transition-colors duration-200" variant="outline" size="sm">View details<ArrowRight className="h-4 w-4 ml-2" /></Button>
                     </div>
                   </CardContent>
                 </Card>

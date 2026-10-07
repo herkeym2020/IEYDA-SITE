@@ -367,7 +367,7 @@ const ProgramsPage = () => {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.6, delay: index * 0.1 }}
                         >
-                          <Card className="group hover:shadow-2xl transition-all duration-300 overflow-hidden h-full">
+                          <Card className="group hover:shadow-2xl transition-all duration-300 overflow-hidden h-full cursor-pointer" onClick={() => setSelectedProgram(program)}>
                             <div className="relative h-48 overflow-hidden">
                               <img 
                                 src={program.image} 
@@ -421,7 +421,7 @@ const ProgramsPage = () => {
                                 variant="outline" 
                                 size="sm" 
                                 className="w-full group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-colors duration-200"
-                                onClick={() => setSelectedProgram(program)}
+                                onClick={(event) => { event.stopPropagation(); setSelectedProgram(program) }}
                               >
                                 View Details
                                 <ArrowRight className="h-4 w-4 ml-2" />

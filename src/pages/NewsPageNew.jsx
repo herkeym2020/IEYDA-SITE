@@ -40,7 +40,7 @@ import youthEmpowermentBg from '../assets/45nOkJspxo2J.jpeg'
 import ilorinPattern1 from '../assets/ilorin_pattern_1.png'
 import ilorinPattern2 from '../assets/ilorin_pattern_2.png'
 import ilorinPattern3 from '../assets/ilorin_pattern_3.png'
-import { getImageUrl } from '@/lib/utils'
+import { getImageUrl, stripHtml } from '@/lib/utils'
 
 const NewsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all')
@@ -230,7 +230,7 @@ const NewsPage = () => {
                 transition={{ duration: 0.6, delay: index * 0.2 }}
                 viewport={{ once: true }}
               >
-                <Card className="group hover:shadow-2xl transition-all duration-300 overflow-hidden h-full">
+                <Card className="group hover:shadow-2xl transition-all duration-300 overflow-hidden h-full cursor-pointer" onClick={() => setSelectedArticle(article)}>
                   <div className="relative h-64 overflow-hidden">
                     <img 
                       src={article.image} 
@@ -449,13 +449,14 @@ const NewsPage = () => {
                     {/* Quick Actions */}
                     <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="flex gap-2">
-                        <button className="bg-white/20 backdrop-blur-sm rounded-full p-2 hover:bg-white/30 transition-colors duration-200">
+                        <button onClick={(event) => event.stopPropagation()} className="bg-white/20 backdrop-blur-sm rounded-full p-2 hover:bg-white/30 transition-colors duration-200">
                           <Bookmark className="h-4 w-4 text-white" />
                         </button>
                         <button
                           className="bg-white/20 backdrop-blur-sm rounded-full p-2 hover:bg-white/30 transition-colors duration-200"
                           onClick={(e) => {
                             e.preventDefault()
+                            e.stopPropagation()
                             const url = `${window.location.origin}/news/${article.slug || article.id}`
                             const title = article.title
                             const text = article.excerpt || ''
@@ -613,10 +614,10 @@ const NewsPage = () => {
                 
                 <div className="prose max-w-none">
                   <p className="text-lg text-gray-600 mb-6 italic">
-                    {selectedArticle.excerpt}
+                    {stripHtml(selectedArticle.excerpt)}
                   </p>
                   <div className="text-gray-700 leading-relaxed">
-                    {selectedArticle.content}
+                    {stripHtml(selectedArticle.content)}
                   </div>
                 </div>
                 

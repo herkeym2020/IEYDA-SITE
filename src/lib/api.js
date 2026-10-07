@@ -3,7 +3,7 @@
 
 const API_BASE = import.meta.env.VITE_API_URL || 'https://control.ilorinemirateyouths.com/api/v1';
 const DEFAULT_TIMEOUT = 10000; // ms
-const CACHE_TTL = 30000; // ms
+const CACHE_TTL = 1000 * 60 * 60 * 24; // bootstrap data is refreshed in the background
 
 const memoryCache = new Map(); // key -> { ts, data }
 const inflight = new Map();    // key -> promise
@@ -39,10 +39,11 @@ function normalizeKey(endpoint) {
 
 // Seed cache from bootstrap to avoid initial network hits
 let primed = false;
+let primedBootstrap = null;
 function primeBootstrapCache() {
-  if (primed) return;
   const boot = getBootstrap();
   if (!boot) return;
+  if (primed && primedBootstrap === boot) return;
   const entries = {
     'hero-slides': boot['hero-slides'],
     'hero-stats': boot['hero-stats'],
@@ -66,6 +67,7 @@ function primeBootstrapCache() {
       memoryCache.set(`GET:${k}`, { ts: now, data: v });
     }
   });
+  primedBootstrap = boot;
   primed = true;
 }
 
